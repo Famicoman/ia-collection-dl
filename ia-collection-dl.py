@@ -18,13 +18,15 @@ def get_name():
 
 def other(target):
 	print("Attempting to download collection: " + target)
-	collection = ia.Search(target)
+	search = ia.Search(target)
 
-	## Really dirty total item count
-	## Cant use len() on Search object
+	## Because the internetarchive module won't return us a list
+	## we'll have to make our own.
 	current_item = 1
 	total_item = 0
-	for entry in collection:
+	collection = []
+	for entry in search:
+		collection.append(entry)
 		total_item += 1
 
 	## Go through all items of the collection and download
@@ -35,7 +37,7 @@ def other(target):
 		item = ia.Item(item_id)
 		status = item.download()
 		print('\t\t Download successful')
-		current_item = current_item + 1
+		current_item += 1
 
 
 def main():
