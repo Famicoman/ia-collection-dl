@@ -5,18 +5,29 @@
 # Where $collectionName is in http://archive.org/details/$collectionName
 
 import sys
+import os
 import internetarchive as ia
 
 
 def get_name():
-	## Make sure the arguments are set
+	'''Get the name of the mirror to make from argv'''
 	if len(sys.argv) < 2:
 		sys.stderr.write("USAGE: " + sys.argv[0] + " <collectionName>\n")
 		sys.exit(1)
 	## Set/Print our collection name and search for it
-	return 'collection:'+sys.argv[1]
+	return sys.argv[1]
 
-def other(target):
+def mkcd(target):
+	'''If target mirror doesn't exist, mkdir and change into it.'''
+	if os.path.exists(os.path.join(os.getcwd(), target)):
+		print("Path: "+os.path.join(os.getcwd(), target)+" exists, EXITING!")
+	else:
+		os.makedirs(os.path.join(os.getcwd(), target))
+		os.chdir(os.path.join(os.getcwd(), target))
+
+def mk_mirror(target):
+	'''Make the mirror'''
+	target = 'collection:' + target
 	print("Attempting to download collection: " + target)
 	search = ia.Search(target)
 
@@ -32,7 +43,8 @@ def other(target):
 	## Go through all items of the collection and download
 	for entry in collection:
 		item_id = entry['identifier']
-		print('Downloading ' + str(current_item) + "/" + str(total_item) + '\t' + item_id)
+		print('Downloading ' + str(current_item) + '/' + str(total_item) + '\t'\
+			+ item_id)
 
 		item = ia.Item(item_id)
 		status = item.download()
@@ -41,7 +53,12 @@ def other(target):
 
 
 def main():
+	# Get mirror name
 	name = get_name()
+	# change into this directiory
+	mkcd(name)
+	# make the mirror
+	mk_mirror(name)
 
 if __name__ == '__main__':
 	main()
