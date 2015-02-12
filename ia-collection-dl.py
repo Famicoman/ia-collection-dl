@@ -5,31 +5,60 @@
 # Where $collectionName is in http://archive.org/details/$collectionName
 
 import sys
+import os
 import internetarchive as ia
 
-## Make sure the arguments are set
-if len(sys.argv) < 2:
-	print>>sys.stderr, "USAGE: " + sys.argv[0] + " $collectionName"
-	sys.exit(1)
 
-## Set/Print our collection name and search for it
-collection_name = 'collection:'+sys.argv[1]
-print "Attempting to download collection: " + sys.argv[1]
-collection = ia.Search(collection_name)
+def get_name():
+	'''Get the name of the mirror to make from argv'''
+	if len(sys.argv) < 2:
+		sys.stderr.write("USAGE: " + sys.argv[0] + " <collectionName>\n")
+		sys.exit(1)
+	## Set/Print our collection name and search for it
+	return sys.argv[1]
 
-## Really dirty total item count
-## Cant use len() on Search object
-current_item = 1
-total_item = 0
-for entry in collection:
-	total_item = total_item + 1
+def mkcd(target):
+	'''If target mirror doesn't exist, mkdir and change into it.'''
+	if os.path.exists(os.path.join(os.getcwd(), target)):
+		print("Path: "+os.path.join(os.getcwd(), target)+" exists, EXITING!")
+	else:
+		os.makedirs(os.path.join(os.getcwd(), target))
+		os.chdir(os.path.join(os.getcwd(), target))
 
-## Go through all items of the collection and download
-for entry in collection:
-	item_id = entry['identifier']
-	print 'Downloading ' + str(current_item) + "/" + str(total_item) + '\t' + item_id
+def mk_mirror(target):
+	'''Make the mirror'''
+	target = 'collection:' + target
+	print("Attempting to download collection: " + target)
+	search = ia.Search(target)
 
-	item = ia.Item(item_id)
-	status = item.download()
-	print '\t\t Download successful'
-	current_item = current_item + 1
+	## Because the internetarchive module won't return us a list
+	## we'll have to make our own.
+	current_item = 1
+	total_item = 0
+	collection = []
+	for entry in search:
+		collection.append(entry)
+		total_item += 1
+
+	## Go through all items of the collection and download
+	for entry in collection:
+		item_id = entry['identifier']
+		print('Downloading ' + str(current_item) + '/' + str(total_item) + '\t'\
+			+ item_id)
+
+		item = ia.Item(item_id)
+		status = item.download()
+		print('\t\t Download successful')
+		current_item += 1
+
+
+def main():
+	# Get mirror name
+	name = get_name()
+	# change into this directiory
+	mkcd(name)
+	# make the mirror
+	mk_mirror(name)
+
+if __name__ == '__main__':
+	main()
