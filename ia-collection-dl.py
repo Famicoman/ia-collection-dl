@@ -8,6 +8,7 @@ import sys
 import os
 import internetarchive as ia
 
+from internetarchive import ArchiveSession
 
 def get_name():
 	'''Get the name of the mirror to make from argv'''
@@ -27,9 +28,10 @@ def mkcd(target):
 
 def mk_mirror(target):
 	'''Make the mirror'''
+	session = ArchiveSession()
 	target = 'collection:' + target
 	print("Attempting to download collection: " + target)
-	search = ia.Search(target)
+	search = ia.Search(session, target)
 
 	## Because the internetarchive module won't return us a list
 	## we'll have to make our own.
@@ -46,7 +48,7 @@ def mk_mirror(target):
 		print('Downloading ' + str(current_item) + '/' + str(total_item) + '\t'\
 			+ item_id)
 
-		item = ia.Item(item_id)
+		item = ia.Item(session, item_id)
 		status = item.download()
 		print('\t\t Download successful')
 		current_item += 1

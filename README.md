@@ -17,6 +17,10 @@ Download the internetarchive module
 
 	pip install internetarchive
 
+Configure ia to authenticate with your account with
+
+	$ ia configure
+
 ## Quickstart Example
 
 Find a collection identifier from the collection URL
