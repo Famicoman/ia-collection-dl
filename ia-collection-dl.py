@@ -8,6 +8,7 @@ import sys
 import os
 import internetarchive as ia
 
+from internetarchive import get_item
 from internetarchive import ArchiveSession
 
 def get_name():
@@ -48,7 +49,7 @@ def mk_mirror(target):
 		print('Downloading ' + str(current_item) + '/' + str(total_item) + '\t'\
 			+ item_id)
 
-		item = ia.Item(session, item_id)
+		item = get_item(item_id)
 		status = item.download()
 		print('\t\t Download successful')
 		current_item += 1
